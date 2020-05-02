@@ -18,6 +18,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
   Position userLocation;
+  Placemark userAddress;
 
   List<String> dummy = [
     "Fajr",
@@ -35,11 +36,12 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-
     _getLocation().then((position) {
       userLocation = position;
       getPrayerTimes(userLocation.latitude, userLocation.longitude);
+      getAddress(userLocation.latitude, userLocation.longitude);
     });
+    // print(userAddress.name);
   }
 
   @override
@@ -100,6 +102,7 @@ class _HomeState extends State<Home> {
                     userLocation = value;
                     getPrayerTimes(
                         userLocation.latitude, userLocation.longitude);
+                    getAddress(userLocation.latitude, userLocation.longitude);
                   });
                 });
               },
@@ -109,7 +112,7 @@ class _HomeState extends State<Home> {
               ),
               label: Text(
                 userLocation != null
-                    ? "Lokasi: lat : ${userLocation.latitude.toString()} , long: ${userLocation.longitude.toString()}"
+                    ? "${userAddress.subAdministrativeArea} "
                     : "Mencari lokasi ...",
                 style: TextStyle(
                     color: Colors.white,
@@ -131,6 +134,19 @@ class _HomeState extends State<Home> {
       currentLocation = null;
     }
     return currentLocation;
+  }
+
+  getAddress(double lat, double long) async {
+    print("${lat.toString()}, ${long.toString()}");
+
+    try {
+      List<Placemark> p = await geolocator.placemarkFromCoordinates(lat, long);
+      Placemark place = p[0];
+      userAddress = place;
+      print("future :" + place.subAdministrativeArea);
+    } catch (e) {
+      userAddress = null;
+    }
   }
 
   getPrayerTimes(double lat, double long) {
@@ -156,3 +172,5 @@ class _HomeState extends State<Home> {
     });
   }
 }
+
+// "Lokasi: lat : ${userLocation.latitude.toString()} , long: ${userLocation.longitude.toString()}"
