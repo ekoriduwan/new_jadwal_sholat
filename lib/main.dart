@@ -20,28 +20,18 @@ class _HomeState extends State<Home> {
   Position userLocation;
   Placemark userAddress;
 
-  List<String> dummy = [
-    "Fajr",
-    "Terbit",
-    "Duhur",
-    "Ashar",
-    "Terbenam",
-    "Magrib",
-    "Isha"
-  ];
-
   List<String> _prayerTimes = [];
   List<String> _prayerNames = [];
 
   @override
   void initState() {
     super.initState();
+
     _getLocation().then((position) {
       userLocation = position;
       getPrayerTimes(userLocation.latitude, userLocation.longitude);
       getAddress(userLocation.latitude, userLocation.longitude);
     });
-    // print(userAddress.name);
   }
 
   @override
@@ -112,7 +102,7 @@ class _HomeState extends State<Home> {
               ),
               label: Text(
                 userLocation != null
-                    ? "${userAddress.subAdministrativeArea} "
+                    ? "${userAddress.subAdministrativeArea}"
                     : "Mencari lokasi ...",
                 style: TextStyle(
                     color: Colors.white,
@@ -137,13 +127,11 @@ class _HomeState extends State<Home> {
   }
 
   getAddress(double lat, double long) async {
-    print("${lat.toString()}, ${long.toString()}");
-
     try {
       List<Placemark> p = await geolocator.placemarkFromCoordinates(lat, long);
       Placemark place = p[0];
       userAddress = place;
-      print("future :" + place.subAdministrativeArea);
+      print(userAddress.subAdministrativeArea);
     } catch (e) {
       userAddress = null;
     }
@@ -172,5 +160,3 @@ class _HomeState extends State<Home> {
     });
   }
 }
-
-// "Lokasi: lat : ${userLocation.latitude.toString()} , long: ${userLocation.longitude.toString()}"
