@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import './models/prayer_time.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(new MaterialApp(
@@ -19,6 +20,9 @@ class _HomeState extends State<Home> {
   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
   Position userLocation;
   Placemark userAddress;
+  double lat_value;
+  double long_value;
+  String address;
 
   List<String> _prayerTimes = [];
   List<String> _prayerNames = [];
@@ -157,6 +161,24 @@ class _HomeState extends State<Home> {
     setState(() {
       _prayerTimes = prayers.getPrayerTimes(currentTime, lat, long, timeZone);
       _prayerNames = prayers.getTimeNames();
+    });
+  }
+
+  void setSP() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+
+    pref.setDouble('key_lat', userLocation.latitude);
+    pref.setDouble('key_long', userLocation.longitude);
+    pref.setString('key_address', userAddress.subAdministrativeArea);
+  }
+
+  void getSP() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+
+    setState(() {
+      lat_value = pref.getDouble('key_lat');
+      long_value = pref.getDouble('key_long');
+      address = pref.getString('key_address');
     });
   }
 }
