@@ -20,16 +20,6 @@ class _HomeState extends State<Home> {
   Position userLocation;
   Placemark userAddress;
 
-  List<String> dummy = [
-    "Fajr",
-    "Terbit",
-    "Duhur",
-    "Ashar",
-    "Terbenam",
-    "Magrib",
-    "Isha"
-  ];
-
   List<String> _prayerTimes = [];
   List<String> _prayerNames = [];
 
@@ -137,8 +127,6 @@ class _HomeState extends State<Home> {
   }
 
   getAddress(double lat, double long) async {
-    print("${lat.toString()}, ${long.toString()}");
-
     try {
       List<Placemark> p = await geolocator.placemarkFromCoordinates(lat, long);
       Placemark place = p[0];
