@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import './models/prayer_time.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(new MaterialApp(
@@ -20,18 +21,23 @@ class _HomeState extends State<Home> {
   Position userLocation;
   Placemark userAddress;
 
+  double lat_value = -3.0149806;
+  double long_value = 120.1649646;
+  String address = "Kota Palopo";
+
   List<String> _prayerTimes = [];
   List<String> _prayerNames = [];
+  List initData = [];
 
   @override
   void initState() {
     super.initState();
-    _getLocation().then((position) {
-      userLocation = position;
-      getPrayerTimes(userLocation.latitude, userLocation.longitude);
-      getAddress(userLocation.latitude, userLocation.longitude);
+
+    getSP().then((value) {
+      initData = value;
+      getPrayerTimes(lat_value, long_value);
+      getAddress(lat_value, long_value);
     });
-    // print(userAddress.name);
   }
 
   @override
@@ -93,7 +99,11 @@ class _HomeState extends State<Home> {
                     getPrayerTimes(
                         userLocation.latitude, userLocation.longitude);
                     getAddress(userLocation.latitude, userLocation.longitude);
+                    address = " ${userAddress.subAdministrativeArea} "
+                        " ${userAddress.country} ";
                   });
+
+                  setSP();
                 });
               },
               icon: Icon(
@@ -101,9 +111,7 @@ class _HomeState extends State<Home> {
                 color: Colors.white,
               ),
               label: Text(
-                userLocation != null
-                    ? "${userAddress.subAdministrativeArea} "
-                    : "Mencari lokasi ...",
+                address ?? "Mencari lokasi ...",
                 style: TextStyle(
                     color: Colors.white,
                     fontFamily: 'Montserrat',
@@ -158,6 +166,30 @@ class _HomeState extends State<Home> {
       _prayerTimes = prayers.getPrayerTimes(currentTime, lat, long, timeZone);
       _prayerNames = prayers.getTimeNames();
     });
+  }
+
+  void setSP() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+
+    pref.setDouble('key_lat', userLocation.latitude);
+    pref.setDouble('key_long', userLocation.longitude);
+    pref.setString('key_address',
+        " ${userAddress.subAdministrativeArea}" "${userAddress.country} ");
+  }
+
+  Future<dynamic> getSP() async {
+    List dataPref = [];
+    SharedPreferences pref = await SharedPreferences.getInstance();
+
+    lat_value = pref.getDouble('key_lat');
+    long_value = pref.getDouble('key_long');
+    address = pref.getString('key_address');
+
+    dataPref.add(lat_value);
+    dataPref.add(long_value);
+    dataPref.add(address);
+
+    return dataPref;
   }
 }
 
