@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import './models/prayer_time.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(new MaterialApp(
@@ -20,9 +19,16 @@ class _HomeState extends State<Home> {
   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
   Position userLocation;
   Placemark userAddress;
-  double lat_value;
-  double long_value;
-  String address;
+
+  List<String> dummy = [
+    "Fajr",
+    "Terbit",
+    "Duhur",
+    "Ashar",
+    "Terbenam",
+    "Magrib",
+    "Isha"
+  ];
 
   List<String> _prayerTimes = [];
   List<String> _prayerNames = [];
@@ -30,12 +36,12 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-
     _getLocation().then((position) {
       userLocation = position;
       getPrayerTimes(userLocation.latitude, userLocation.longitude);
       getAddress(userLocation.latitude, userLocation.longitude);
     });
+    // print(userAddress.name);
   }
 
   @override
@@ -106,7 +112,7 @@ class _HomeState extends State<Home> {
               ),
               label: Text(
                 userLocation != null
-                    ? "${userAddress.subAdministrativeArea}"
+                    ? "${userAddress.subAdministrativeArea} "
                     : "Mencari lokasi ...",
                 style: TextStyle(
                     color: Colors.white,
@@ -131,11 +137,13 @@ class _HomeState extends State<Home> {
   }
 
   getAddress(double lat, double long) async {
+    print("${lat.toString()}, ${long.toString()}");
+
     try {
       List<Placemark> p = await geolocator.placemarkFromCoordinates(lat, long);
       Placemark place = p[0];
       userAddress = place;
-      print(userAddress.subAdministrativeArea);
+      print("future :" + place.subAdministrativeArea);
     } catch (e) {
       userAddress = null;
     }
@@ -163,22 +171,6 @@ class _HomeState extends State<Home> {
       _prayerNames = prayers.getTimeNames();
     });
   }
-
-  void setSP() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-
-    pref.setDouble('key_lat', userLocation.latitude);
-    pref.setDouble('key_long', userLocation.longitude);
-    pref.setString('key_address', userAddress.subAdministrativeArea);
-  }
-
-  void getSP() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-
-    setState(() {
-      lat_value = pref.getDouble('key_lat');
-      long_value = pref.getDouble('key_long');
-      address = pref.getString('key_address');
-    });
-  }
 }
+
+// "Lokasi: lat : ${userLocation.latitude.toString()} , long: ${userLocation.longitude.toString()}"
