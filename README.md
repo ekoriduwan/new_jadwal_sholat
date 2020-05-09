@@ -1,6 +1,12 @@
 # new_jadwal_sholat
 
-A new Flutter project.
+Kalian bisa lihat tutorial detilnya di
+
+PLAYLIST:
+https://bit.ly/Project_Aplikasi_Jadwal_Sholat_dengan_ANDROID
+
+Ayo Ngoding!
+
 
 ## Getting Started
 
