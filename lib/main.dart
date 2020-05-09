@@ -20,21 +20,28 @@ class _HomeState extends State<Home> {
   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
   Position userLocation;
   Placemark userAddress;
-  double lat_value;
-  double long_value;
-  String address;
+  double lat_value = -3.0149806;
+  double long_value = 120.1649646;
+  String address = "Kota Palopo";
 
   List<String> _prayerTimes = [];
   List<String> _prayerNames = [];
+
+  List initData = [];
 
   @override
   void initState() {
     super.initState();
 
-    _getLocation().then((position) {
-      userLocation = position;
-      getPrayerTimes(userLocation.latitude, userLocation.longitude);
-      getAddress(userLocation.latitude, userLocation.longitude);
+    getSP().then((position) {
+      initData = position;
+
+      print("initState lat: " + initData[0].toString());
+      print("initState long: " + initData[1].toString());
+      print("initState address: " + initData[2].toString());
+
+      getPrayerTimes(lat_value, long_value);
+      getAddress(lat_value, long_value);
     });
   }
 
@@ -97,7 +104,10 @@ class _HomeState extends State<Home> {
                     getPrayerTimes(
                         userLocation.latitude, userLocation.longitude);
                     getAddress(userLocation.latitude, userLocation.longitude);
+                    address = "${userAddress.subAdministrativeArea} "
+                        " ${userAddress.country}";
                   });
+                  setSP();
                 });
               },
               icon: Icon(
@@ -105,9 +115,7 @@ class _HomeState extends State<Home> {
                 color: Colors.white,
               ),
               label: Text(
-                userLocation != null
-                    ? "${userAddress.subAdministrativeArea}"
-                    : "Mencari lokasi ...",
+                address ?? "Mencari lokasi ...",
                 style: TextStyle(
                     color: Colors.white,
                     fontFamily: 'Montserrat',
@@ -135,7 +143,7 @@ class _HomeState extends State<Home> {
       List<Placemark> p = await geolocator.placemarkFromCoordinates(lat, long);
       Placemark place = p[0];
       userAddress = place;
-      print(userAddress.subAdministrativeArea);
+      print("getAddress: " + userAddress.country);
     } catch (e) {
       userAddress = null;
     }
@@ -169,16 +177,21 @@ class _HomeState extends State<Home> {
 
     pref.setDouble('key_lat', userLocation.latitude);
     pref.setDouble('key_long', userLocation.longitude);
-    pref.setString('key_address', userAddress.subAdministrativeArea);
+    pref.setString('key_address',
+        "${userAddress.subAdministrativeArea} " " ${userAddress.country}");
   }
 
-  void getSP() async {
+  Future<dynamic> getSP() async {
+    List dataPref = [];
     SharedPreferences pref = await SharedPreferences.getInstance();
 
-    setState(() {
-      lat_value = pref.getDouble('key_lat');
-      long_value = pref.getDouble('key_long');
-      address = pref.getString('key_address');
-    });
+    lat_value = pref.getDouble('key_lat');
+    long_value = pref.getDouble('key_long');
+    address = pref.getString('key_address');
+    dataPref.add(lat_value);
+    dataPref.add(long_value);
+    dataPref.add(address);
+
+    return dataPref;
   }
 }
